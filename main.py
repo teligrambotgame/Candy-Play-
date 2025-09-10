@@ -9,7 +9,7 @@ import sqlite3
 app = Flask(__name__)
 
 # Telegram Bot Token
-BOT_TOKEN = os.environ.get("7999216513:AAHTWGFPbFAd5j8CfCs2Hgw0CxExKpREOYQ")
+BOT_TOKEN = os.environ.get("BOT_TOKAN")
 BOT_USERNAME = "candyplay_bot"  # Apna bot username yaha dalna
 
 # Database setup

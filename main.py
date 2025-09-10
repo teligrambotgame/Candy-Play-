@@ -1,58 +1,61 @@
+import logging
 import os
-from flask import Flask, request
-import requests
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+)
+from flask import Flask
 
+# Flask app for Render health check
 app = Flask(__name__)
 
-# === BOT TOKEN ===
-BOT_TOKEN = "7999216513:AAEITyORi5Hr6Iwp3ytkRxLx-4MHwn3JBug"
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-
-# === HOME ROUTE ===
 @app.route("/", methods=["GET"])
 def home():
     return "✅ Candy Play Bot is Live!"
 
-# === TELEGRAM WEBHOOK ROUTE ===
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    data = request.get_json()
-    print("📩 Incoming update:", data)  # Debugging ke liye
+# Telegram bot token
+BOT_TOKEN = "7999216513:AAEITyORi5Hr6Iwp3ytkRxLx-4MHwn3JBug"
 
-    if data and "message" in data:
-        chat_id = data["message"]["chat"]["id"]
-        text = data["message"].get("text", "")
+# Enable logging for debugging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
-        if text.lower() == "/start":
-            reply = "🍭 Welcome to Candy Play!\nClick below to play 👇"
-            play_button = {
-                "inline_keyboard": [[{
-                    "text": "▶ Play Candy Play",
-                    "url": "https://candy-play.onrender.com"
-                }]]
-            }
-            send_message(chat_id, reply, play_button)
+# /start command handler
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [[
+        InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")
+    ]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        f"🍭 Welcome {update.effective_user.first_name}!\n"
+        "🎮 Click below to start playing 👇",
+        reply_markup=reply_markup
+    )
 
-        elif text.lower() == "/play":
-            send_message(chat_id, "🎮 Game started! Collect candies and earn points!")
+# /play command handler
+async def play(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🎮 Game started! Collect candies and earn points!")
 
-        else:
-            send_message(chat_id, f"You said: {text}")
+async def main():
+    # Build Telegram app
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    return {"ok": True}
+    # Commands
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("play", play))
 
-# === FUNCTION TO SEND MESSAGE ===
-def send_message(chat_id, text, reply_markup=None):
-    url = f"{TELEGRAM_API_URL}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": text
-    }
-    if reply_markup:
-        payload["reply_markup"] = reply_markup
-
-    response = requests.post(url, json=payload)
-    print("📤 Message sent:", response.json())  # Debugging ke liye
+    # Start polling Telegram for updates
+    print("🚀 Candy Play Bot is running...")
+    await application.run_polling()
 
 if __name__ == "__main__":
+    # Start Telegram bot in background
+    import threading
+    threading.Thread(target=lambda: os.system("python3 main.py run_bot"), daemon=True).start()
+
+    # Start Flask for Render health check
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

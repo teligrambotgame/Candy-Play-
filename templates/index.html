@@ -13,11 +13,11 @@
       <div class="score-box">
         <div>Score: <span id="score">0</span></div>
         <div>Moves: <span id="moves">20</span></div>
+        <div>Level: <span id="level">1</span></div>
       </div>
     </header>
 
     <div id="board"></div>
-
     <button id="play-btn">▶ Play</button>
   </div>
 
@@ -31,9 +31,12 @@
     let board = [];
     let score = 0;
     let moves = 20;
+    let level = 1;
+
     const boardEl = document.getElementById('board');
     const scoreEl = document.getElementById('score');
     const movesEl = document.getElementById('moves');
+    const levelEl = document.getElementById('level');
 
     function randomCandy() {
       return candies[Math.floor(Math.random() * candies.length)];
@@ -110,6 +113,15 @@
       if (matched.length > 0) {
         score += matched.length * 10;
         scoreEl.innerText = score;
+
+        // Update level based on score
+        level = Math.floor(score / 500) + 1;
+        if (level > 100) level = 100;
+        levelEl.innerText = level;
+
+        // Save score to server
+        sendScore(score);
+
         matched = [...new Set(matched)];
         matched.forEach(i => board[i] = randomCandy());
         updateBoard();
@@ -117,15 +129,28 @@
       }
     }
 
+    async function sendScore(score) {
+      const userId = new URLSearchParams(window.location.search).get("user_id");
+      if (!userId) return;
+
+      await fetch("/update_progress", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({user_id: userId, score: score})
+      });
+    }
+
     document.getElementById('play-btn').addEventListener('click', () => {
       score = 0;
       moves = 20;
+      level = 1;
       scoreEl.innerText = score;
       movesEl.innerText = moves;
+      levelEl.innerText = level;
       createBoard();
     });
 
     createBoard();
   </script>
 </body>
-  </html>
+</html>

@@ -4,17 +4,20 @@ import requests
 
 app = Flask(__name__)
 
+# === BOT TOKEN ===
 BOT_TOKEN = "7999216513:AAEITyORi5Hr6Iwp3ytkRxLx-4MHwn3JBug"
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
+# === HOME ROUTE ===
 @app.route("/", methods=["GET"])
 def home():
     return "✅ Candy Play Bot is Live!"
 
+# === TELEGRAM WEBHOOK ROUTE ===
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json()
-    print("📩 Incoming update:", data)  # DEBUG LINE
+    print("📩 Incoming update:", data)  # Debugging ke liye
 
     if data and "message" in data:
         chat_id = data["message"]["chat"]["id"]
@@ -38,6 +41,7 @@ def webhook():
 
     return {"ok": True}
 
+# === FUNCTION TO SEND MESSAGE ===
 def send_message(chat_id, text, reply_markup=None):
     url = f"{TELEGRAM_API_URL}/sendMessage"
     payload = {
@@ -47,8 +51,8 @@ def send_message(chat_id, text, reply_markup=None):
     if reply_markup:
         payload["reply_markup"] = reply_markup
 
-    r = requests.post(url, json=payload)
-    print("📤 Message sent:", r.json())  # DEBUG LINE
+    response = requests.post(url, json=payload)
+    print("📤 Message sent:", response.json())  # Debugging ke liye
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

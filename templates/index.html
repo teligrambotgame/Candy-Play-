@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Candy Play</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="game-container">
+    <header>
+      <h1>CANDY <span>PLAY</span></h1>
+      <div class="score-box">
+        <div>Score: <span id="score">0</span></div>
+        <div>Moves: <span id="moves">20</span></div>
+      </div>
+    </header>
+
+    <div id="board"></div>
+
+    <button id="play-btn">▶ Play</button>
+  </div>
+
+  <script>
+    const ROWS = 8, COLS = 8;
+    const candies = ['red','orange','green','blue','yellow','choco'];
+    const emojis = {
+      red: '🍓', orange: '🍊', green: '🟩', blue: '💧', yellow: '🌼', choco: '🍫'
+    };
+
+    let board = [];
+    let score = 0;
+    let moves = 20;
+    const boardEl = document.getElementById('board');
+    const scoreEl = document.getElementById('score');
+    const movesEl = document.getElementById('moves');
+
+    function randomCandy() {
+      return candies[Math.floor(Math.random() * candies.length)];
+    }
+
+    function createBoard() {
+      board = [];
+      boardEl.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const candy = randomCandy();
+          board.push(candy);
+          const cell = document.createElement('div');
+          cell.className = `cell ${candy}`;
+          cell.innerHTML = emojis[candy];
+          cell.dataset.index = r * COLS + c;
+          cell.addEventListener('click', () => selectCandy(cell));
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    let selected = null;
+    function selectCandy(cell) {
+      const i = +cell.dataset.index;
+      if (selected === null) {
+        selected = i;
+        cell.classList.add('selected');
+      } else {
+        swapCandies(selected, i);
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+        selected = null;
+      }
+    }
+
+    function swapCandies(i1, i2) {
+      const r1 = Math.floor(i1 / COLS), c1 = i1 % COLS;
+      const r2 = Math.floor(i2 / COLS), c2 = i2 % COLS;
+      if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return;
+
+      [board[i1], board[i2]] = [board[i2], board[i1]];
+      updateBoard();
+      checkMatches();
+    }
+
+    function updateBoard() {
+      document.querySelectorAll('.cell').forEach((cell, i) => {
+        cell.className = `cell ${board[i]}`;
+        cell.innerHTML = emojis[board[i]];
+      });
+    }
+
+    function checkMatches() {
+      let matched = [];
+      // Horizontal check
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS - 2; c++) {
+          const i = r * COLS + c;
+          if (board[i] === board[i+1] && board[i] === board[i+2]) {
+            matched.push(i, i+1, i+2);
+          }
+        }
+      }
+      // Vertical check
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS - 2; r++) {
+          const i = r * COLS + c;
+          if (board[i] === board[i+COLS] && board[i] === board[i+COLS*2]) {
+            matched.push(i, i+COLS, i+COLS*2);
+          }
+        }
+      }
+
+      if (matched.length > 0) {
+        score += matched.length * 10;
+        scoreEl.innerText = score;
+        matched = [...new Set(matched)];
+        matched.forEach(i => board[i] = randomCandy());
+        updateBoard();
+        checkMatches();
+      }
+    }
+
+    document.getElementById('play-btn').addEventListener('click', () => {
+      score = 0;
+      moves = 20;
+      scoreEl.innerText = score;
+      movesEl.innerText = moves;
+      createBoard();
+    });
+
+    createBoard();
+  </script>
+</body>
+  </html>

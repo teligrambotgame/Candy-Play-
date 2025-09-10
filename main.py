@@ -1,30 +1,57 @@
 import os
 from flask import Flask, request
-import telegram
-
-TOKEN = os.getenv("BOT_TOKEN")
-bot = telegram.Bot(token=TOKEN)
+import requests
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return "Candy Play Bot is running!"
+# Telegram Bot Token
+BOT_TOKEN = "7999216513:AAEITyORi5Hr6Iwp3ytkRxLx-4MHwn3JBug"
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
-@app.route('/webhook', methods=['POST'])
+# Home route to check server status
+@app.route("/", methods=["GET"])
+def home():
+    return "✅ Candy Play Bot is Live!"
+
+# Webhook route
+@app.route("/webhook", methods=["POST"])
 def webhook():
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    
-    if update.message:
-        chat_id = update.message.chat.id
-        text = update.message.text
-        
-        if text == "/start":
-            bot.sendMessage(chat_id=chat_id, text="🍬 Welcome to Candy Play! Let's start playing!")
+    data = request.get_json()
+    if data and "message" in data:
+        chat_id = data["message"]["chat"]["id"]
+        text = data["message"].get("text", "")
+
+        # If user sends /start command
+        if text.lower() == "/start":
+            reply = "🍭 Welcome to Candy Play!\nClick below to play 👇"
+            play_button = {
+                "inline_keyboard": [[{
+                    "text": "▶ Play Candy Play",
+                    "url": "https://candy-play.onrender.com"
+                }]]
+            }
+            send_message(chat_id, reply, play_button)
+
+        # If user sends /play command
+        elif text.lower() == "/play":
+            send_message(chat_id, "🎮 Game started! Collect candies and earn points!")
+
+        # For other messages
         else:
-            bot.sendMessage(chat_id=chat_id, text="I didn't understand that. Type /start to play!")
-    
-    return "ok"
+            send_message(chat_id, f"You said: {text}")
+
+    return {"ok": True}
+
+# Function to send message
+def send_message(chat_id, text, reply_markup=None):
+    url = f"{TELEGRAM_API_URL}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    requests.post(url, json=payload)
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

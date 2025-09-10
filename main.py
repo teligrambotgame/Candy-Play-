@@ -54,31 +54,44 @@ def get_level(user_id):
     return result[0] if result else 1
 
 # ---------------- Telegram Bot handler ----------------
+# ================== HANDLE UPDATE ==================
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot
+
 def handle_update(update, bot: Bot):
     try:
-        if update.message:  # Only process if message exists
+        if update.message:  # Check if message exists
             chat_id = update.message.chat.id
             text = update.message.text or ""
-            
+
+            # Handle /start command
             if text.lower() == "/start":
                 save_user(chat_id, update.effective_user.username or "Unknown")
-                keyboard = [[InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")]]
+                keyboard = [[
+                    InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")
+                ]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
+
                 bot.send_message(
                     chat_id=chat_id,
-                    text=f"🍭 Welcome {update.effective_user.first_name}!\n"
-                         f"🎮 Level: {get_level(chat_id)}\n"
-                         f"⭐ Score: {get_score(chat_id)}\n\nClick below to start playing 👇",
+                    text=(
+                        f"🍭 Welcome {update.effective_user.first_name}!\n"
+                        f"🎮 Level: {get_level(chat_id)}\n"
+                        f"⭐ Score: {get_score(chat_id)}\n\n"
+                        "Click below to start playing 👇"
+                    ),
                     reply_markup=reply_markup
                 )
+
+            # Handle /play command
             elif text.lower() == "/play":
-                bot.send_message(chat_id=chat_id, text="Game started! Collect candies and earn points!")
+                bot.send_message(chat_id=chat_id, text="🎮 Game started! Collect candies and earn points!")
+
+            # For other messages
             else:
                 bot.send_message(chat_id=chat_id, text=f"You said: {text}")
 
     except Exception as e:
         print(f"handle_update error: {e}")
-
 # ---------------- Flask webhook route ----------------
 @app.route("/webhook", methods=["POST"])
 def webhook():

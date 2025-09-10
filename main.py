@@ -82,13 +82,9 @@ def handle_update(update, bot: Bot):
 # ---------------- Flask webhook route ----------------
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    try:
-        update = Update.de_json(request.get_json(force=True), bot)
-        threading.Thread(target=handle_update, args=(update, bot)).start()
-        return "ok"
-    except Exception as e:
-        print(f"Webhook Error: {e}")
-        return "error"
+    update = Update.de_json(request.get_json(force=True), bot)
+    threading.Thread(target=handle_update, args=(update, bot)).start()
+    return "ok"
 
 # ---------------- Update progress route ----------------
 @app.route("/update_progress", methods=["POST"])

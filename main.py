@@ -1,4 +1,4 @@
-# ================= Candy Play Main.py =================
+# ================= Candy Play Final main.py =================
 from flask import Flask, request, jsonify
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
 import os
@@ -56,24 +56,25 @@ def get_level(user_id):
 # ---------------- Telegram Bot handler ----------------
 def handle_update(update, bot: Bot):
     try:
-        chat_id = update.message.chat.id
-        text = update.message.text
-
-        if text.lower() == "/start":
-            save_user(chat_id, update.effective_user.username or "Unknown")
-            keyboard = [[InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            bot.send_message(
-                chat_id=chat_id,
-                text=f"🍭 Welcome {update.effective_user.first_name}!\n"
-                     f"🎮 Level: {get_level(chat_id)}\n"
-                     f"⭐ Score: {get_score(chat_id)}\n\nClick below to start playing 👇",
-                reply_markup=reply_markup
-            )
-        elif text.lower() == "/play":
-            bot.send_message(chat_id=chat_id, text="Game started! Collect candies and earn points!")
-        else:
-            bot.send_message(chat_id=chat_id, text=f"You said: {text}")
+        if update.message:  # Only process if message exists
+            chat_id = update.message.chat.id
+            text = update.message.text or ""
+            
+            if text.lower() == "/start":
+                save_user(chat_id, update.effective_user.username or "Unknown")
+                keyboard = [[InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")]]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                bot.send_message(
+                    chat_id=chat_id,
+                    text=f"🍭 Welcome {update.effective_user.first_name}!\n"
+                         f"🎮 Level: {get_level(chat_id)}\n"
+                         f"⭐ Score: {get_score(chat_id)}\n\nClick below to start playing 👇",
+                    reply_markup=reply_markup
+                )
+            elif text.lower() == "/play":
+                bot.send_message(chat_id=chat_id, text="Game started! Collect candies and earn points!")
+            else:
+                bot.send_message(chat_id=chat_id, text=f"You said: {text}")
 
     except Exception as e:
         print(f"handle_update error: {e}")
@@ -108,6 +109,11 @@ def update_progress():
         conn.commit()
     conn.close()
     return jsonify({"success": True})
+
+# ---------------- Root route ----------------
+@app.route("/")
+def index():
+    return "Candy Play Bot Running!"
 
 # ---------------- Run Flask app ----------------
 if __name__ == "__main__":

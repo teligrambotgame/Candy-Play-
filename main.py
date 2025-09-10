@@ -137,3 +137,34 @@ def handle_update(update, bot: Bot):
 
     except Exception as e:
         print(f"handle_update error: {e}")
+# ================= Candy Play Telegram Bot Webhook =================
+# File name: webhook.py
+
+from flask import Flask, request
+from telegram import Bot, Update
+import os
+import threading
+import main  # tumhara existing main.py
+
+app = Flask(__name__)
+
+# BOT_TOKEN ko Render Environment Variables me set karo
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+bot = Bot(token=BOT_TOKEN)
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    try:
+        # Telegram update receive
+        update = Update.de_json(request.get_json(force=True), bot)
+
+        # Thread me existing main.py ka handle_update call karo
+        threading.Thread(target=main.handle_update, args=(update, bot)).start()
+
+        return "ok"
+    except Exception as e:
+        print(f"Webhook Error: {e}")
+        return "error"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

@@ -1,0 +1,89 @@
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #ff7eb3, #ff758c, #ff9770);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.game-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 360px;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ff4d6d;
+}
+
+header h1 span {
+  color: #ff9f1c;
+}
+
+.score-box {
+  display: flex;
+  justify-content: space-between;
+  background: #fceef5;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 15px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+  font-weight: bold;
+  color: #ff4d6d;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, 40px);
+  grid-template-rows: repeat(8, 40px);
+  gap: 5px;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background: #f8d7ff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.cell.selected {
+  transform: scale(1.15);
+  border: 2px solid #ff4d6d;
+}
+
+#play-btn {
+  padding: 10px 20px;
+  background: #ff4d6d;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#play-btn:hover {
+  background: #e43f5a;
+}

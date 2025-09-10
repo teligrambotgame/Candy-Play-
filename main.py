@@ -110,3 +110,30 @@ def run_telegram_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_telegram_bot).start()
     app.run(host="0.0.0.0", port=5000)
+# --- Add this in your main.py ---
+
+from telegram import Bot
+
+def handle_update(update, bot: Bot):
+    """
+    This function handles incoming Telegram messages for Candy Play.
+    It receives 'update' from Telegram and the bot instance.
+    Add your game logic inside this function.
+    """
+
+    try:
+        chat_id = update.message.chat.id
+        text = update.message.text
+
+        # --- Example game logic ---
+        # Replace this with your actual Candy Play commands
+        if text.lower() == "/start":
+            bot.send_message(chat_id=chat_id, text="Welcome to Candy Play! 🍬\nType /play to start the game.")
+        elif text.lower() == "/play":
+            bot.send_message(chat_id=chat_id, text="Game started! Collect candies and earn points!")
+        else:
+            # Echo any other message (you can replace this with actual game logic)
+            bot.send_message(chat_id=chat_id, text=f"You said: {text}")
+
+    except Exception as e:
+        print(f"handle_update error: {e}")

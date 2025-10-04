@@ -1,67 +1,37 @@
-import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-logger.info("Bot started")
-import logging
-import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    ContextTypes,
-)
-from flask import Flask
-import asyncio
+from flask import Flask, request
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+import os, asyncio
 
-# Flask app for Render health check
-@app.route('/<7999216513:AAH3fyMOn0YkvEgEyEJiAPEZNh1z9J-E8Ro>', methods=['POST'])
-def receive_update(token):
-    if token == TELEGRAM_BOT_TOKEN:
-        update = telebot.types.Update.de_json(request.stream.read().decode("utf-8"))
-        bot.process_new_updates([update])
-        return "!", 200
-    else:
-        return "Unauthorized", 403
+TOKEN = os.getenv("7999216513:AAH3fyMOn0YkvEgEyEJiAPEZNh1z9J-E8Ro")
 
-# Enable logging for debugging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
+app = Flask(__name__)
 
-# Telegram bot token from environment
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# PTB Application
+application = Application.builder().token(TOKEN).build()
 
-# /start command handler
+# Commands
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[
-        InlineKeyboardButton("▶ Play Candy Play", url="https://candy-play.onrender.com")
-    ]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(
-        f"🍭 Welcome {update.effective_user.first_name}!\n"
-        "🎮 Click below to start playing 👇",
-        reply_markup=reply_markup
-    )
+    await update.message.reply_text("👋 Hello! Candy Play bot is live ✅")
 
-# /play command handler
-async def play(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🎮 Game started! Collect candies and earn points!")
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(f"You said: {update.message.text}")
 
-# Telegram bot runner
-async def main():
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+application.add_handler(CommandHandler("start", start))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("play", play))
+# Webhook route
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    asyncio.get_event_loop().create_task(application.process_update(update))
+    return "ok", 200
 
-    print("✅ Telegram bot is now polling for commands...")
-    await application.run_polling()
+# Root test route
+@app.route("/")
+def home():
+    return "Candy Play bot is running!", 200
 
-# Entry point
+
 if __name__ == "__main__":
-    # Start Telegram bot
-    asyncio.run(main())
-
-    # Start Flask app for Render health check
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

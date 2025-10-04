@@ -28,3 +28,11 @@ function rollDice() {
 }
 
 drawBoard();
+let players = [
+  { color: 'red', x: 50, y: 50, position: 0 },
+  { color: 'green', x: 550, y: 50, position: 0 },
+  { color: 'yellow', x: 50, y: 550, position: 0 },
+  { color: 'blue', x: 550, y: 550, position: 0 }
+];
+
+let currentPlayer = 0;

@@ -10,11 +10,14 @@ from flask import Flask
 import asyncio
 
 # Flask app for Render health check
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def home():
-    return "✅ Candy Play Bot is Live!"
+@app.route('/<7999216513:AAH3fyMOn0YkvEgEyEJiAPEZNh1z9J-E8Ro>', methods=['POST'])
+def receive_update(token):
+    if token == TELEGRAM_BOT_TOKEN:
+        update = telebot.types.Update.de_json(request.stream.read().decode("utf-8"))
+        bot.process_new_updates([update])
+        return "!", 200
+    else:
+        return "Unauthorized", 403
 
 # Enable logging for debugging
 logging.basicConfig(

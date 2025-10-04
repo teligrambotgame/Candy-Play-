@@ -8,3 +8,18 @@ canvas {
   border: 2px solid #333;
   margin-top: 20px;
 }
+
+#controls {
+  margin-top: 20px;
+}
+
+#tokenOptions button {
+  margin: 5px;
+}
+
+#gameOver {
+  margin-top: 30px;
+  background-color: #ffe0e0;
+  padding: 20px;
+  border-radius: 10px;
+}

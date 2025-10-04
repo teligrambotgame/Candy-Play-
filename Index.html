@@ -6,10 +6,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Ludo Game</h1>
+  <h1>Ludo Multiplayer Game</h1>
   <canvas id="ludoBoard" width="600" height="600"></canvas>
-  <button onclick="rollDice()">Roll Dice</button>
-  <p id="diceResult">Dice: </p>
-  <script src="script.js"></script>
+
+  <div id="controls">
+    <button onclick="rollDice()">🎲 Roll Dice</button>
+    <p id="diceResult">Dice: </p>
+    <div id="tokenOptions"></div>
+  </div>
+
+  <div id="gameOver" style="display:none;">
+    <h2 id="winnerText"></h2>
+    <button onclick="restartGame()">🔁 Play Again</button>
+  </div>
+
+  <script src="board.js"></script>
+  <script src="game.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>

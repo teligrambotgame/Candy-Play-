@@ -1,5 +1,7 @@
 function rollDice() {
   let rollCount = 0;
+  const diceSound = new Audio('assets/dice-roll.mp3');
+diceSound.play();
   const interval = setInterval(() => {
     const temp = Math.floor(Math.random() * 6) + 1;
     document.getElementById('diceResult').textContent = `Dice: ${temp}`;

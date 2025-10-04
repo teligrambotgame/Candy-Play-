@@ -24,7 +24,17 @@ function drawBoard() {
 function rollDice() {
   const result = Math.floor(Math.random() * 6) + 1;
   document.getElementById('diceResult').textContent = `Dice: ${result}`;
-  // Add token movement logic here
+
+  let player = players[currentPlayer];
+  player.position += result;
+
+  // Simple movement logic: move right by 30px per step
+  player.x = 50 + player.position * 30;
+
+  drawBoard();
+
+  // Switch to next player
+  currentPlayer = (currentPlayer + 1) % players.length;
 }
 
 function drawBoard() {
